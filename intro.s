@@ -8,8 +8,8 @@
   X: .float 1.0,2.0,3.0,4.0,5.0,6.0,7.0,8.0
   X_size: .byte 8
   
-  X_even: .zero 16 # 5 Positions (32*4)/8
-  X_odd: .zero 16 # 5 Positions (32*4)/8
+  X_even: .zero 16 # 4 Positions (32*4)/8
+  X_odd: .zero 16 # 4 Positions (32*4)/8
   
 .text
   
