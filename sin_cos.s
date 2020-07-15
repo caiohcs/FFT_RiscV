@@ -4,6 +4,12 @@
 
 .globl __start
 
+.data
+        X_evenR: .float 0,0,0,0
+        X_evenI: .float 0,0,0,0
+        X_oddR: .float 0,0,0,0
+        X_oddI: .float 0,0,0,0
+
 .rodata
  	pi_6: .float 0.5236
         num05: .float 0.5
@@ -19,7 +25,7 @@
         fac10: .float 3628800
         fac11: .float 39916800
         
-        X: .float 1,2,3,4,5,6,7,8
+        
 .text
 
 	
@@ -140,10 +146,20 @@ sin:
         addi sp, sp, 4
 	ret
 
+store_evenR:
+        la a1,X_evenR
+        fsw fa3, 0(a1)
+        addi a1, a1, 4 # Repeat to insert more values in X_evenR
+        
+        fsw fa3, 0(a1)
+        #addi a1, a1, 4 
+        ret
+
 # *************** Main function ***************	
 __start:
         la	t0, pi_6
-	call 	cos	
+	call 	cos
+        call store_evenR	
         
 	li 	a0, 10	# ends the program with status code 0
 	ecall
