@@ -147,6 +147,16 @@ sin:
         lw ra, 0(sp)
         addi sp, sp, 4
 	ret
+
+store_evenR:
+        la a1,S_evenR
+        fsw fa3, 0(a1)
+        addi a1, a1, 4 # Repeat to insert more values in X_evenR
+
+        fsw fa3, 0(a1)
+        #addi a1, a1, 4 
+        ret
+
 # *************** Calculates argument for exponential. ***************
 # Inputs:	a2: k
 # Outputs:	fa4: arg
