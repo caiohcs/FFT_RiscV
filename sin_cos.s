@@ -5,13 +5,14 @@
 .globl __start
 
 .data
-        X_evenR: .float 0,0,0,0
-        X_evenI: .float 0,0,0,0
-        X_oddR: .float 0,0,0,0
-        X_oddI: .float 0,0,0,0
-
+        S_evenR: .float 0,0,0,0
+        S_evenI: .float 0,0,0,0
+        S_oddR: .float 0,0,0,0
+        S_oddI: .float 0,0,0,0
+        k: .byte 0
+        X_even: .float 1,2,3,4
 .rodata
- 	pi_6: .float 0.5236
+ 	pi: .float 3.1415
         num05: .float 0.5
         fac1: .float 1
         fac2: .float 2
@@ -24,8 +25,7 @@
         fac9: .float 362880
         fac10: .float 3628800
         fac11: .float 39916800
-        
-        
+
 .text
 
 	
@@ -48,118 +48,140 @@ pow_fim:
 	ret
 
 # *************** Calculates cos(arg) by using a truncated taylor series. ***************
-# Inputs:	t0: arg
-# Outputs:	fa3: cos(arg)
+# Inputs:	fa4: arg
+# Outputs:	fa6: cos(arg)
 cos:
         addi sp, sp, -4
         sw ra, 0(sp)
         
+        fmv.s fa3, fa4
         la t2, fac1
-        flw fa3, 0(t2)
+        flw ft5, 0(t2)
         
         la t1, fac2 # Calculate arg^2/2!
         flw ft8, 0(t1)
-        flw fa0, 0(t0) 
+        fmv.s fa0, fa3 
         li a0,2
         call pow
         fdiv.s fa2, fa1, ft8 
-        fsub.s fa3, fa3, fa2 
+        fsub.s fa6, ft5, fa2 
         
         la t1, fac4 # Calculate arg^4/4!
         flw ft8, 0(t1)
         li a0,4
-        call pow 
+        call pow
         fdiv.s fa2, fa1, ft8 
-        fadd.s fa3, fa3, fa2
+        fadd.s fa6, fa6, fa2 
         
         la t1, fac6 # Calculate arg^6/6!
         flw ft8, 0(t1)
         li a0,6
-        call pow 
+        call pow
         fdiv.s fa2, fa1, ft8 
-        fsub.s fa3, fa3, fa2
+        fsub.s fa6, fa6, fa2
         
         la t1, fac8 # Calculate arg^8/8!
         flw ft8, 0(t1)
         li a0,8
-        call pow 
+        call pow
         fdiv.s fa2, fa1, ft8 
-        fadd.s fa3, fa3, fa2
+        fadd.s fa6, fa6, fa2 
         
-        la t1, fac10 # Calculate arg^8/8!
+        la t1, fac10 # Calculate arg^10/10!
         flw ft8, 0(t1)
         li a0,10
-        call pow 
+        call pow
         fdiv.s fa2, fa1, ft8 
-        fsub.s fa3, fa3, fa2     
+        fsub.s fa6, fa6, fa2  
                
         lw ra, 0(sp)
         addi sp, sp, 4
 	ret
 
 # *************** Calculates sin(arg) by using a truncated taylor series. ***************
-# Inputs:	t0: arg
-# Outputs:	fa3: sin(arg)
+# Inputs:	fa4: arg
+# Outputs:	fa5: sin(arg)
 sin:
         addi sp, sp, -4
         sw ra, 0(sp)
 
-        flw fa3, 0(t0)
+        fmv.s fa3, fa4
         
-        la t1, fac3 # Calculate arg^2/2!
+        la t1, fac3 # Calculate arg^3/3!
         flw ft8, 0(t1)
-        flw fa0, 0(t0) 
+        fmv.s fa0, fa3 
         li a0,3
         call pow
         fdiv.s fa2, fa1, ft8 
         fsub.s fa3, fa3, fa2 
         
-        la t1, fac5 # Calculate arg^4/4!
+        la t1, fac5 # Calculate arg^5/5!
         flw ft8, 0(t1)
         li a0,5
         call pow 
         fdiv.s fa2, fa1, ft8 
         fadd.s fa3, fa3, fa2
         
-        la t1, fac7 # Calculate arg^6/6!
+        la t1, fac7 # Calculate arg^7/7!
         flw ft8, 0(t1)
         li a0,7
         call pow 
         fdiv.s fa2, fa1, ft8 
         fsub.s fa3, fa3, fa2
         
-        la t1, fac9 # Calculate arg^8/8!
+        la t1, fac9 # Calculate arg^9/9!
         flw ft8, 0(t1)
         li a0,9
         call pow 
         fdiv.s fa2, fa1, ft8 
         fadd.s fa3, fa3, fa2
         
-        la t1, fac11 # Calculate arg^8/8!
+        la t1, fac11 # Calculate arg^11/11!
         flw ft8, 0(t1)
         li a0,11
         call pow 
         fdiv.s fa2, fa1, ft8 
-        fsub.s fa3, fa3, fa2     
+        fsub.s fa3, fa3, fa2
+        fmv.s fa5, fa3     
                
         lw ra, 0(sp)
         addi sp, sp, 4
 	ret
+# *************** Calculates argument for exponential. ***************
+# Inputs:	a2: k
+# Outputs:	fa4: arg
+calc_arg:
+        addi sp, sp, -4
+        sw ra, 0(sp)
 
-store_evenR:
-        la a1,X_evenR
-        fsw fa3, 0(a1)
-        addi a1, a1, 4 # Repeat to insert more values in X_evenR
+        fcvt.s.w ft0, a2 # ft0 = k
+        li a3, 4
+        fcvt.s.w ft1, a3 # ft1 = 4
+        la t2, pi 
+        flw ft2, 0(t2) # ft2 = pi
         
-        fsw fa3, 0(a1)
-        #addi a1, a1, 4 
+        li s0, 2 
+        fcvt.s.w ft3, s0 # ft3 = n // Modificar para entrar no loop
+        li s1, 8
+        fcvt.s.w ft4, s1 # ft4 = N
+        
+        fmul.s fa4, ft0, ft1
+        fmul.s fa4, fa4, ft2
+        fmul.s fa4, fa4, ft3
+        fdiv.s fa4, fa4, ft4
+        
+        call sin
+        call cos
+        
+        lw ra, 0(sp)
+        addi sp, sp, 4
         ret
 
 # *************** Main function ***************	
 __start:
-        la	t0, pi_6
-	call 	cos
-        call store_evenR	
+        li      a2, 1 # a2 = k
+        la      t0, pi
+        call    calc_arg	
         
 	li 	a0, 10	# ends the program with status code 0
 	ecall
