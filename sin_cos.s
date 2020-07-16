@@ -13,7 +13,7 @@
         X_even: .float 1,2,3,4
 .rodata
  	pi: .float 3.1415
-        num05: .float 0.5
+        pi2: .float 6.2830
         fac1: .float 1
         fac2: .float 2
         fac3: .float 6
@@ -25,6 +25,7 @@
         fac9: .float 362880
         fac10: .float 3628800
         fac11: .float 39916800
+        fac12: .float 479001600
 
 .text
 
@@ -50,7 +51,7 @@ pow_fim:
 # *************** Calculates cos(arg) by using a truncated taylor series. ***************
 # Inputs:	fa4: arg
 # Outputs:	fa6: cos(arg)
-cos:
+cos:    
         addi sp, sp, -4
         sw ra, 0(sp)
         
@@ -92,19 +93,26 @@ cos:
         li a0,10
         call pow
         fdiv.s fa2, fa1, ft8 
-        fsub.s fa6, fa6, fa2  
+        fsub.s fa6, fa6, fa2
+        
+        la t1, fac12 # Calculate arg^12/12!
+        flw ft8, 0(t1)
+        li a0,12
+        call pow
+        fdiv.s fa2, fa1, ft8 
+        fadd.s fa6, fa6, fa2    
                
         lw ra, 0(sp)
         addi sp, sp, 4
 	ret
-
+        
 # *************** Calculates sin(arg) by using a truncated taylor series. ***************
 # Inputs:	fa4: arg
 # Outputs:	fa5: sin(arg)
 sin:
         addi sp, sp, -4
         sw ra, 0(sp)
-
+        
         fmv.s fa3, fa4
         
         la t1, fac3 # Calculate arg^3/3!
@@ -142,12 +150,15 @@ sin:
         call pow 
         fdiv.s fa2, fa1, ft8 
         fsub.s fa3, fa3, fa2
-        fmv.s fa5, fa3     
+        fmv.s fa5, fa3 
+        
+        fsub.s fa5, fa5, fa3 # Pass negative -sin(arg)
+        fsub.s fa5, fa5, fa3
                
         lw ra, 0(sp)
         addi sp, sp, 4
 	ret
-
+        
 store_evenR:
         la a1,S_evenR
         fsw fa3, 0(a1)
@@ -163,14 +174,14 @@ store_evenR:
 calc_arg:
         addi sp, sp, -4
         sw ra, 0(sp)
-
+        
         fcvt.s.w ft0, a2 # ft0 = k
         li a3, 4
         fcvt.s.w ft1, a3 # ft1 = 4
         la t2, pi 
         flw ft2, 0(t2) # ft2 = pi
         
-        li s0, 2 
+        li s0, 7
         fcvt.s.w ft3, s0 # ft3 = n // Modificar para entrar no loop
         li s1, 8
         fcvt.s.w ft4, s1 # ft4 = N
@@ -180,6 +191,11 @@ calc_arg:
         fmul.s fa4, fa4, ft3
         fdiv.s fa4, fa4, ft4
         
+        la s0, pi2
+        flw fs0, 0(s0)
+        
+        call check_arg
+        
         call sin
         call cos
         
@@ -187,9 +203,20 @@ calc_arg:
         addi sp, sp, 4
         ret
 
+check_arg:
+        flt.s s2, fa4, fs0
+        li s3, 1
+        beq s2, x0, reduce_ang
+        ret
+
+reduce_ang:
+        fsub.s fa4, fa4, fs0
+        jal x0, check_arg
+        ret
+        
 # *************** Main function ***************	
 __start:
-        li      a2, 1 # a2 = k
+        li      a2, 7 # a2 = k
         la      t0, pi
         call    calc_arg	
         
