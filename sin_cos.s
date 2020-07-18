@@ -12,8 +12,8 @@
         k: .byte 0
         X_even: .float 1,2,3,4
 .rodata
- 	pi: .float 3.1415
-        pi2: .float 6.2830
+ 	pi: .float 3.14159
+        pi2: .float 6.28318
         fac1: .float 1
         fac2: .float 2
         fac3: .float 6
@@ -181,7 +181,7 @@ calc_arg:
         la t2, pi 
         flw ft2, 0(t2) # ft2 = pi
         
-        li s0, 7
+        li s0, 1
         fcvt.s.w ft3, s0 # ft3 = n // Modificar para entrar no loop
         li s1, 8
         fcvt.s.w ft4, s1 # ft4 = N
@@ -216,7 +216,7 @@ reduce_ang:
         
 # *************** Main function ***************	
 __start:
-        li      a2, 7 # a2 = k
+        li      a2, 4 # a2 = k
         la      t0, pi
         call    calc_arg	
         
