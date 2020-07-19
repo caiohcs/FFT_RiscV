@@ -1,8 +1,8 @@
 .globl __start
 
 .data
-  sizeX: .zero 1
-  X: .zero 5
+  sizeX: .zero 4
+  X: .zero 20
   temp: .zero 100
 
 .rodata
@@ -26,17 +26,29 @@ Convert:
 	li t4, 10
 	li t5, '.'
 	li t6, ','
+	li a7, -1
+	fcvt.s.w ft2, a7		# ft2 = -1
+	li a7, '-'
+	
 	
 Convert_loop:
 	lbu a2, 0(a1)
 	beq t0, a2, Convert_End		# Fim de arquivo
 	beq t1, a2, Convert_ignore	# Ignora espaço
 	beq t6, a2, Convert_ignore	# Ignora virgula
-	jal x0, Convert_start		# Começa a converter o numero
+	beq a7, a2, Convert_negative	# Começa a converter se o numero for negativo
+	li a7, 0			# Se positivo, a7 = 0
+	jal x0, Convert_start		# Começa a converter se o numero for positivo
 	
 Convert_ignore:
-	addi a1, a1, 1
+	addi a1, a1, 1			# Incrementa o indice
 	jal x0, Convert_loop
+
+Convert_negative:
+	addi a1, a1, 1
+	lbu a2, 0(a1)
+	li a7, -1			# Se negativo, a7 = -1
+	jal x0, Convert_start
 
 Convert_start:
 	li a3, 0			# zera a parte inteira
@@ -75,9 +87,15 @@ Convert_float:
 	fdiv.s ft0, ft0, ft1
 	fcvt.s.w ft1, a3		# converte a parte inteira pra float
 	fadd.s ft0, ft0, ft1		# soma parte inteira e decimal
+	beq a7, x0, Convert_float_store # a7 = 0 se o numero for positivo
+Convert_mul_minues1:			# caso o numero seja negativo
+	fmul.s ft0, ft0, ft2		# Multiplica por -1 se for negativo
+Convert_float_store:
 	fsw ft0, 0(a0)
 	addi a0, a0, 4
+	li a7, '-'
 	jal x0, Convert_loop
+
 
 Convert_End:
 	sub a0, a0, a6			# Calcula o numero de elementos
