@@ -169,8 +169,8 @@ calc_argWN_2km:
         flw ft2, 0(t2) # ft2 = pi
         
         #li s0, 3
-        fcvt.s.w ft3, s0 # ft3 = n // Modificar para entrar no loop
-        li s1, 8
+        fcvt.s.w ft3, s3 # ft3 = n // Modificar para entrar no loop
+        li s1, 4
         fcvt.s.w ft4, s1 # ft4 = N
         
         fmul.s fa4, ft0, ft1

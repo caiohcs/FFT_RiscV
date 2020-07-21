@@ -8,8 +8,8 @@ Sum_Vector:
 
 addi sp, sp, -4
 sw ra, 0(sp)
-li s3,0
-li a2,0
+li s3,0 # n
+li a2,1 # k
 Sum_Vector_Loop:
 
 beq a1,s3, Return
