@@ -20,8 +20,8 @@ call calc_argWN_2km
 fmul.s fa1, fs3, fa6 # Real Part
 fmul.s fa2, fs3, fa5 # Imag Part
 
-fadd.s fs1,fs1,fa1
-fadd.s fs2,fs1,fa2
+fadd.s fs1,fs1,fa1 # Real part
+fadd.s fs2,fs2,fa2 # Imag part
 
 addi s9,s9,4
 addi s3,s3,1

@@ -7,6 +7,7 @@
 SplitArrays:
   CheckSize:
   lb a2,sizeX
+  mv s4,a2
   li a3,1
   sub a3,a2,a3
   and a3,a2,a3

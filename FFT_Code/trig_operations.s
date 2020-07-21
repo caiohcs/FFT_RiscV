@@ -170,8 +170,8 @@ calc_argWN_2km:
         
         #li s0, 3
         fcvt.s.w ft3, s3 # ft3 = n // Modificar para entrar no loop
-        li s1, 4
-        fcvt.s.w ft4, s1 # ft4 = N
+        #li s1, 4
+        fcvt.s.w ft4, s4 # ft4 = N
         
         fmul.s fa4, ft0, ft1
         fmul.s fa4, fa4, ft2
