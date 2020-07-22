@@ -2,6 +2,7 @@
 # Sine and Cosine   #
 #####################
 .globl calc_argWN_2km
+.globl calc_argWNk
 
 .rodata
  	pi: .float 3.14159
@@ -203,8 +204,8 @@ calc_argWNk:
         la t2, pi 
         flw ft2, 0(t2) # ft2 = pi
         
-        li s1, 8
-        fcvt.s.w ft4, s1 # ft4 = N
+        # li s1, 4
+        fcvt.s.w ft4, s4 # ft4 = N
         
         fmul.s fa4, ft0, ft1
         fmul.s fa4, fa4, ft2
