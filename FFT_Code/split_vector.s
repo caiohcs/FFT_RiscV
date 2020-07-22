@@ -20,13 +20,13 @@ SplitArrays:
   
   Split:
   la a1, X
-  la a2, X_odd
+  la a2, X_even
   lb a5, sizeX
   srli a6,a5,1 # sizeX_half
   la t0, sizeX_half # Get sizeX_half address
   sb a6, 0(t0) # Store sizeX_half
   slli a6,a6,2 # (32 * X_half_Size)/8 = 2^(2) * Half_Size
-  add a3,a2,a6 # Offset to X_even
+  add a3,a2,a6 # Offset to X_odd
   addi a5,a5,1 # Array Size + 1 to Compare
   li a7, 2 # Position Flag
   Split_Loop:
