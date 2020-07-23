@@ -1,16 +1,16 @@
 .globl Sum_Vector
 .globl Complex_Mul
+.globl FFT
 
 .text
 
 Sum_Vector:
-# Inputs:	a0: Vector, a1: Vector Size
+# Inputs:	s9: Vector, a1: Vector Size, a2: k
 # Outputs:	fs1,fs2: Sum of Vector
 
 addi sp, sp, -4
 sw ra, 0(sp)
 li s3,0 # n
-li a2,3 # k
 Sum_Vector_Loop:
 beq a1,s3, Sum_Vector_Return
 
@@ -30,7 +30,6 @@ jal x0, Sum_Vector_Loop
 Sum_Vector_Return:
 lw ra, 0(sp)
 addi sp, sp, 4
-jal x0, Complex_Mul
 ret
 
 
@@ -53,3 +52,52 @@ fadd.s fs11,fs7,fs8 # Imag Part
 lw ra, 0(sp)
 addi sp, sp, 4
 ret
+
+
+FFT:
+  addi sp, sp, -4
+  sw ra, 0(sp)
+
+  la s9,X_even
+  lw a1,sizeX_half
+  slli a2,a1,2 # (32 * X_half_Size)/8 = 2^(2) * Half_Size
+  add s9,s9,a2 # Offset X_even to get X_odd
+  lw a2,sizeX
+  addi a2,a2,-1 #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  
+  S2:
+  la s5, X_result
+  S2_Loop:
+  blt a2,x0, S1
+  call Sum_Vector
+  call Complex_Mul
+  fsw fs10,0(s5)
+  fsw fs11,4(s5)
+  addi s5,s5,8  
+  addi a2,a2,-1
+  jal x0, S2_Loop
+  
+  S1:
+  la s9,X_even
+  la s5, X_result
+  lb a1,sizeX_half
+  lw a2,sizeX
+  addi a2,a2,-1
+  S1_Loop:
+  blt a2,x0, Return
+  call Sum_Vector
+  flw ft10,0(s5)
+  flw ft11,4(s5)
+  fadd.s fs1,fs1,ft10 # Real Part
+  fadd.s fs2,fs2,ft11 # Imag Part
+  fsw fs1,0(s5)
+  fsw fs2,4(s5)
+  addi s5,s5,8  
+  addi a2,a2,-1
+  jal x0, S1_Loop
+  
+  Return:
+  lw ra, 0(sp)
+  addi sp, sp, 4
+  ret
+  
