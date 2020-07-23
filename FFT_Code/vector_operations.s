@@ -61,6 +61,7 @@ FFT:
   la s9,X_even
   lw a1,sizeX_half
   slli a2,a1,2 # (32 * X_half_Size)/8 = 2^(2) * Half_Size
+  mv s10, a2 # FIX 1
   add s9,s9,a2 # Offset X_even to get X_odd
   lw a2,sizeX
   addi a2,a2,-1 #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -75,6 +76,10 @@ FFT:
   fsw fs11,4(s5)
   addi s5,s5,8  
   addi a2,a2,-1
+  la s9,X_even # FIX 1
+  add s9,s9,s10 # FIX 1
+  fcvt.s.w fs1,x0 # FIX 2
+  fcvt.s.w fs2,x0 # FIX 2
   jal x0, S2_Loop
   
   S1:
@@ -94,10 +99,12 @@ FFT:
   fsw fs2,4(s5)
   addi s5,s5,8  
   addi a2,a2,-1
+  la s9,X_even # FIX 1
+  fcvt.s.w fs1,x0 # FIX 2
+  fcvt.s.w fs2,x0 # FIX 2
   jal x0, S1_Loop
   
   Return:
   lw ra, 0(sp)
   addi sp, sp, 4
   ret
-  

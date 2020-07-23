@@ -6,7 +6,7 @@
 .text
 SplitArrays:
   CheckSize:
-  lw a2,sizeX
+  lb a2,sizeX
   mv s4,a2
   li a3,1
   sub a3,a2,a3
@@ -21,10 +21,10 @@ SplitArrays:
   Split:
   la a1, X
   la a2, X_even
-  lw a5, sizeX
+  lb a5, sizeX
   srli a6,a5,1 # sizeX_half
   la t0, sizeX_half # Get sizeX_half address
-  sw a6, 0(t0) # Store sizeX_half
+  sb a6, 0(t0) # Store sizeX_half
   slli a6,a6,2 # (32 * X_half_Size)/8 = 2^(2) * Half_Size
   add a3,a2,a6 # Offset to X_odd
   addi a5,a5,1 # Array Size + 1 to Compare
