@@ -1,23 +1,25 @@
 .globl __start
 
-.data
-	Xa:	.float -0.723
-	Xb:	.float -125.622
-	Xc:	.float -312.1415
-	X3:	.float 100
-	X:	.zero 100
 	
+.data
+	Xa:		.float -0.723
+	Xb:		.float -125.622
+	Xc:		.float -312.1415
+	Xd:		.float 100 
+	textBuffer:	.zero 100
+	sizeX_half:	.zero 4
 
 .rodata
 	O_RDWR:	.word 0b0110100		# open flags
-	path:	.string "exit.txt"	# pathname
+	pathR:	.string "exitR.txt"	# pathname
+	pathI:	.string "exitI.txt"	# pathname	
 .text
 
 # Inputs: a0: address of float vector, a1: output buffer address, a2: number of elements
 # Outputs: a0: number of characters in the output text 
 Float2Str:
 	addi	sp, sp, -4		# Salva RA
-	sw	s1, 0(sp)		# Salva RA
+	sw	ra, 0(sp)		# Salva RA
 
 	add	a3, a1, x0		# t7 = beginning of output buffer
 	li	t2, 10000		
@@ -92,7 +94,7 @@ Float2Str_next:
 	addi	a1, a1, 1		# store ' '
 	addi	a2, a2, -1		# store ' '
 	beq	a2, x0, Float2Str_end	# if counter=0 jump to end
-	addi	a0, a0, 4		# next float addr += 4
+	addi	a0, a0, 8		# next float addr += 8
 	flw	ft1, 0(a0)		# loads next float
 	jal	x0, Float2Str_outerLoop
 
@@ -100,29 +102,69 @@ Float2Str_next:
 Float2Str_end:
 	sub	a0, a1, a3		# a0 = end of buffer - beginning of buf = text size
 	
-	lw	s1, 0(sp)		# Restaura RA
+	lw	ra, 0(sp)		# Restaura RA
+	addi	sp, sp, 4		# Restaura RA
+	ret
+
+
+# Inputs: a0: address of input vector, a1: address of half of the size of the input vector
+# Outputs: none
+Write2File:
+	addi	sp, sp, -4		# push RA
+	sw	ra, 0(sp)		# push RA
+
+	# writing X real	
+	li	a0, 13			# Open File
+	la	a1, pathR		# pathname address
+	lw	a2, O_RDWR		# load O_RDWR open flag
+	ecall
+	add	s2, a0, x0
+	
+	la	a0, Xa			# a0 = addr of X
+	la	a1, textBuffer		# a1 = addr of text buffer
+	la	t0, sizeX_half
+	lw	a2, 0(t0)
+	call	Float2Str		# converts float to string
+
+	add	a3, a0, x0		# a3 = size of text
+	li	a0, 15			# write
+	add	a1, s2, x0		# file descriptor
+	la	a2, textBuffer
+	ecall
+
+	#writing X imag
+	li	a0, 13			# Open File
+	la	a1, pathI		# pathname address
+	lw	a2, O_RDWR		# load O_RDWR open flag
+	ecall
+	add	s2, a0, x0
+	
+	la	a0, Xa			# a0 = addr of X
+	addi	a0, a0, 4		# addr X += 4
+	la	a1, textBuffer		# a1 = addr of text buffer
+	la	t0, sizeX_half
+	lw	a2, 0(t0)
+	call	Float2Str		# converts float to string
+
+	add	a3, a0, x0		# a3 = size of text
+
+	li	a0, 15			# write
+	add	a1, s2, x0		# file descriptor
+	la	a2, textBuffer
+	ecall
+	
+
+	lw	ra, 0(sp)		# Restaura RA
 	addi	sp, sp, 4		# Restaura RA
 	ret
 	
 	
 __start:
-	li	a0, 13			# Open File
-	la	a1, path		# pathname address
-	lw	a2, O_RDWR		# load O_RDWR open flag
-	ecall
-	add	s0, a0, x0
+	la	a1, sizeX_half
+	li	t1, 2
+	sw	t1, 0(a1)
 	
-	la	a0, Xa
-	la	a1, X
-	li	a2, 4
-	call	Float2Str
-
-	add	a3, a0, x0		# a3 = size of text
-
-	li	a0, 15			# write
-	add	a1, s0, x0		# file descriptor
-	la	a2, X
-	ecall
+	call	Write2File		# Calls the function that writes to file
 	
 	li	a0, 10			# ends the program with status code 0
 	ecall
