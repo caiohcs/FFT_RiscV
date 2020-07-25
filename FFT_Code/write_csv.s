@@ -1,13 +1,5 @@
-.globl __start
+.globl Write2File
 
-	
-.data
-	Xa:		.float -0.723
-	Xb:		.float -125.622
-	Xc:		.float -312.1415
-	Xd:		.float 100 
-	textBuffer:	.zero 100
-	sizeX_half:	.zero 4
 
 .rodata
 	O_RDWR:	.word 0b0110100		# open flags
@@ -107,8 +99,6 @@ Float2Str_end:
 	ret
 
 
-# Inputs: a0: address of input vector, a1: address of half of the size of the input vector
-# Outputs: none
 Write2File:
 	addi	sp, sp, -4		# push RA
 	sw	ra, 0(sp)		# push RA
@@ -120,9 +110,9 @@ Write2File:
 	ecall
 	add	s2, a0, x0
 	
-	la	a0, Xa			# a0 = addr of X
+	la	a0, X_result	        # a0 = addr of X_result
 	la	a1, textBuffer		# a1 = addr of text buffer
-	la	t0, sizeX_half
+	la	t0, sizeX
 	lw	a2, 0(t0)
 	call	Float2Str		# converts float to string
 
@@ -139,10 +129,10 @@ Write2File:
 	ecall
 	add	s2, a0, x0
 	
-	la	a0, Xa			# a0 = addr of X
+	la	a0, X_result	        # a0 = addr of X_result
 	addi	a0, a0, 4		# addr X += 4
 	la	a1, textBuffer		# a1 = addr of text buffer
-	la	t0, sizeX_half
+	la	t0, sizeX
 	lw	a2, 0(t0)
 	call	Float2Str		# converts float to string
 
@@ -157,14 +147,3 @@ Write2File:
 	lw	ra, 0(sp)		# Restaura RA
 	addi	sp, sp, 4		# Restaura RA
 	ret
-	
-	
-__start:
-	la	a1, sizeX_half
-	li	t1, 2
-	sw	t1, 0(a1)
-	
-	call	Write2File		# Calls the function that writes to file
-	
-	li	a0, 10			# ends the program with status code 0
-	ecall

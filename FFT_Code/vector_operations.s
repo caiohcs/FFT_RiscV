@@ -63,19 +63,20 @@ FFT:
   slli a2,a1,2 # (32 * X_half_Size)/8 = 2^(2) * Half_Size
   mv s10, a2 # FIX 1
   add s9,s9,a2 # Offset X_even to get X_odd
-  lw a2,sizeX
-  addi a2,a2,-1 #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  lw s11,sizeX
+  addi s11,s11,1 
+  li a2,0
   
   S2:
   la s5, X_result
   S2_Loop:
-  blt a2,x0, S1
+  beq a2,s11, S1
   call Sum_Vector
   call Complex_Mul
   fsw fs10,0(s5)
   fsw fs11,4(s5)
   addi s5,s5,8  
-  addi a2,a2,-1
+  addi a2,a2,1
   la s9,X_even # FIX 1
   add s9,s9,s10 # FIX 1
   fcvt.s.w fs1,x0 # FIX 2
@@ -86,10 +87,11 @@ FFT:
   la s9,X_even
   la s5, X_result
   lb a1,sizeX_half
-  lw a2,sizeX
-  addi a2,a2,-1
+  lw s11,sizeX
+  addi s11,s11,1
+  li a2,0
   S1_Loop:
-  blt a2,x0, Return
+  beq a2,s11, Return
   call Sum_Vector
   flw ft10,0(s5)
   flw ft11,4(s5)
@@ -98,7 +100,7 @@ FFT:
   fsw fs1,0(s5)
   fsw fs2,4(s5)
   addi s5,s5,8  
-  addi a2,a2,-1
+  addi a2,a2,1
   la s9,X_even # FIX 1
   fcvt.s.w fs1,x0 # FIX 2
   fcvt.s.w fs2,x0 # FIX 2
