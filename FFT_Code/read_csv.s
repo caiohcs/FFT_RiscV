@@ -58,7 +58,7 @@ Convert_integer_loop:
 	lbu a2, 0(a1)
 	beq a2, t5, Convert_decimal	# O numero tem parte decimal
 	bltu a2, t2, Convert_float	# O numero nao tem parte decimal
-	bgeu a2, t3, Convert_float	# O numero nao tem parte decimal
+	bgtu a2, t3, Convert_float	# O numero nao tem parte decimal
 	jal x0, Convert_integer_loop	# O numero ainda nao foi completamente lido
 
 Convert_decimal:
@@ -74,7 +74,7 @@ Convert_decimal_loop:
 	addi a1, a1, 1
 	lbu a2, 0(a1)
 	bltu a2, t2, Convert_float
-	bgeu a2, t3, Convert_float
+	bgtu a2, t3, Convert_float
 	jal x0, Convert_decimal_loop
 
 Convert_float:
